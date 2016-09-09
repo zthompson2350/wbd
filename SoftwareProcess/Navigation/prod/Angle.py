@@ -1,7 +1,6 @@
 class Angle():
     def __init__(self):
         self.angle = 0.0       #set to 0 degrees 0 minutes
-        pass
     
     def setDegrees(self, degrees):
         pass
