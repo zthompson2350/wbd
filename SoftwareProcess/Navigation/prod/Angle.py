@@ -23,16 +23,17 @@ class Angle():
         return output
     
     def add(self, angle):
-        self.degrees = (self.degrees + angle.degrees)%360
-        self.degrees = self.degrees + (int((self.minutes + angle.minutes) / 60))
+        self.degrees = (self.degrees + angle.degrees)
+        self.degrees = (self.degrees + (int((self.minutes + angle.minutes) / 60))) % 360
         self.minutes = (self.minutes + angle.minutes)%60.0
         output = float(self.degrees + (self.minutes / 100))
         return output
     
     def subtract(self, angle):
         self.degrees = (self.degrees - angle.degrees)%360
-        self.minutes = ((self.minutes - angle.minutes)%60.0)
-        output = float(self.degrees + self.minutes)
+        self.degrees = (self.degrees - (int((self.minutes - angle.minutes) / 60))) % 360
+        self.minutes = (self.minutes - angle.minutes)%60.0
+        output = float(self.degrees + (self.minutes / 100))
         return output
     
     def compare(self, angle):
@@ -50,5 +51,16 @@ angleString = '10d179'
 angleString2 = '3d1'
 myAngleFloat = myAngle.setDegreesAndMinutes(angleString)
 myAngleFloat2 = myAngle2.setDegreesAndMinutes(angleString2)
+print(myAngleFloat)
+print(myAngleFloat2)
+print('Adding')
 myAngleFloat = myAngle.add(myAngle2)
+print(myAngleFloat)
+print('Resetting Angles')
+myAngleFloat = myAngle.setDegreesAndMinutes(angleString)
+myAngleFloat2 = myAngle2.setDegreesAndMinutes(angleString2)
+print(myAngleFloat)
+print(myAngleFloat2)
+print('Subtracting')
+myAngleFloat = myAngle.subtract(myAngle2)
 print(myAngleFloat)
