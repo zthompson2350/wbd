@@ -12,13 +12,18 @@ class Angle():
         return float(self.degrees)
     
     def setDegreesAndMinutes(self, angleString):
+        isNegative = False
         delimeter = 'd'
         delimiterIndex = angleString.find(delimeter)
         self.degrees = int(angleString[:delimiterIndex])
         self.minutes = float(angleString[delimiterIndex+1:])
+        if (self.degrees < 0):
+            isNegative = True
         self.degrees = self.degrees%360
         self.degrees = self.degrees + (int(self.minutes / 60))
         self.minutes = (self.minutes%60)
+        if (isNegative):
+            self.minutes = 60 - self.minutes
         output = float(self.degrees + (self.minutes / 100))
         return output
     
@@ -37,18 +42,28 @@ class Angle():
         return output
     
     def compare(self, angle):
-        pass
+        if (self.degrees > angle.degrees):
+            return 1
+        elif (self.degrees < angle.degrees):
+            return -1
+        elif (self.degrees == angle.degrees):
+            if (self.minutes > angle.minutes):
+                return 1
+            elif (self.minutes < angle.minutes):
+                return -1
+            else:
+                return 0
     
     def getString(self):
-        pass
+        return str(self.degrees) + 'd' + str(self.minutes)
     
     def getDegrees(self):
         return self.degrees
     
 myAngle = Angle()
 myAngle2 = Angle()
-angleString = '10d179'
-angleString2 = '3d1'
+angleString = '357d33.32'
+angleString2 = '-3d27'
 myAngleFloat = myAngle.setDegreesAndMinutes(angleString)
 myAngleFloat2 = myAngle2.setDegreesAndMinutes(angleString2)
 print(myAngleFloat)
@@ -61,6 +76,11 @@ myAngleFloat = myAngle.setDegreesAndMinutes(angleString)
 myAngleFloat2 = myAngle2.setDegreesAndMinutes(angleString2)
 print(myAngleFloat)
 print(myAngleFloat2)
-print('Subtracting')
-myAngleFloat = myAngle.subtract(myAngle2)
-print(myAngleFloat)
+#print('Subtracting')
+#myAngleFloat = myAngle.subtract(myAngle2)
+#print(myAngleFloat)
+areEqual = myAngle.compare(myAngle2)
+print('Comparing')
+print(areEqual)
+angleStr = myAngle.getString()
+print(angleStr)
