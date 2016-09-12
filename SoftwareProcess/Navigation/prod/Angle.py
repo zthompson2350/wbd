@@ -1,22 +1,47 @@
 class Angle():
     def __init__(self):
         #set to 0 degrees 0 minutes
-        self.degrees = 0
-        self.minutes = 0.0
+        self.degrees = 0.0
+        self.minutes = 0
     
     def setDegrees(self, degrees=None):
         if (degrees == None):
             self.degrees = 0
+        elif (not(isinstance(degrees, float)) and not(isinstance(degrees, int))):
+            raise ValueError('Angle.setDegrees:  Parameter must be an int or a float')
         else:
-            self.degrees = degrees%360
-        return float(self.degrees)
+            self.degrees = int(degrees)%360
+            degstr = str(degrees)
+            decloc = degstr.find('.')
+            mins = str(degrees)[decloc+1:]
+            self.minutes = float(mins)%60
+            self.degrees = self.degrees + (int(mins) / 60)
+            output = float(self.degrees + (self.minutes / 100))
+        return output
     
     def setDegreesAndMinutes(self, angleString):
+        if (not(isinstance(angleString, str))):
+            raise ValueError('Angle.setDegreesAndMinutes:  Parameter should be a string')
         isNegative = False
         delimeter = 'd'
         delimiterIndex = angleString.find(delimeter)
-        self.degrees = int(angleString[:delimiterIndex])
-        self.minutes = float(angleString[delimiterIndex+1:])
+        if (delimiterIndex == -1):
+            raise ValueError('Angle.setDegreesAndMinutes:  Parameter should be in format xdy.y')
+        if (delimiterIndex == 0):
+            raise ValueError('Angle.setDegreesAndMinutes:  No Degrees Specified')
+        if (angleString[delimiterIndex] == angleString[-1]):
+            raise ValueError('Angle.setDegreesAndMinutes:  No Minutes Specified')
+        angleDegrees = angleString[:delimiterIndex]
+        if (not(angleDegrees.isdigit())):
+            raise ValueError('Angle.setDegreesAndMinutes:  x must be an integer')
+        try:
+            angleMinutes = float(angleString[delimiterIndex+1:])
+        except:
+            raise ValueError('Angle.setDegreesAndMinutes:  y.y must be an int or a float')
+        if (angleMinutes < 0):
+            raise ValueError('Angle.setDegreesAndMinutes:  y.y must be positive')
+        self.degrees = int(angleDegrees)
+        self.minutes = float(angleMinutes)
         if (self.degrees < 0):
             isNegative = True
         self.degrees = self.degrees%360
@@ -28,6 +53,8 @@ class Angle():
         return output
     
     def add(self, angle):
+        if (not(isinstance(angle, Angle))):
+            raise ValueError('Angle.add:  Parameter is not an Angle')
         self.degrees = (self.degrees + angle.degrees)
         self.degrees = (self.degrees + (int((self.minutes + angle.minutes) / 60))) % 360
         self.minutes = (self.minutes + angle.minutes)%60.0
@@ -35,6 +62,8 @@ class Angle():
         return output
     
     def subtract(self, angle):
+        if (not(isinstance(angle, Angle))):
+            raise ValueError('Angle.subtract:  Parameter is not an Angle')
         self.degrees = (self.degrees - angle.degrees)%360
         self.degrees = (self.degrees - (int((self.minutes - angle.minutes) / 60))) % 360
         self.minutes = (self.minutes - angle.minutes)%60.0
@@ -42,6 +71,8 @@ class Angle():
         return output
     
     def compare(self, angle):
+        if (not(isinstance(angle, Angle))):
+            raise ValueError('Angle.compare:  Parameter is not an Angle')
         if (self.degrees > angle.degrees):
             return 1
         elif (self.degrees < angle.degrees):
@@ -59,28 +90,3 @@ class Angle():
     
     def getDegrees(self):
         return self.degrees
-    
-myAngle = Angle()
-myAngle2 = Angle()
-angleString = '357d33.32'
-angleString2 = '-3d27'
-myAngleFloat = myAngle.setDegreesAndMinutes(angleString)
-myAngleFloat2 = myAngle2.setDegreesAndMinutes(angleString2)
-print(myAngleFloat)
-print(myAngleFloat2)
-print('Adding')
-myAngleFloat = myAngle.add(myAngle2)
-print(myAngleFloat)
-print('Resetting Angles')
-myAngleFloat = myAngle.setDegreesAndMinutes(angleString)
-myAngleFloat2 = myAngle2.setDegreesAndMinutes(angleString2)
-print(myAngleFloat)
-print(myAngleFloat2)
-#print('Subtracting')
-#myAngleFloat = myAngle.subtract(myAngle2)
-#print(myAngleFloat)
-areEqual = myAngle.compare(myAngle2)
-print('Comparing')
-print(areEqual)
-angleStr = myAngle.getString()
-print(angleStr)
