@@ -1,8 +1,8 @@
 class Angle():
     def __init__(self):
         #set to 0 degrees 0 minutes
-        self.degrees = 0.0
-        self.minutes = 0
+        self.degrees = 0
+        self.minutes = 0.0
     
     def setDegrees(self, degrees=None):
         if (degrees == None):
