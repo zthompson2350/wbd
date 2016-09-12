@@ -89,4 +89,4 @@ class Angle():
         return str(self.degrees) + 'd' + str(self.minutes)
     
     def getDegrees(self):
-        return self.degrees
+        return float(self.degrees) + (self.minutes / 100.0)
