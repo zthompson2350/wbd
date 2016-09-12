@@ -16,7 +16,7 @@ class Angle():
             mins = str(degrees)[decloc+1:]
             self.minutes = float(mins)%60
             self.degrees = self.degrees + (int(mins) / 60)
-            output = float(self.degrees + (self.minutes / 100))
+            output = float(self.degrees + (self.minutes / 60.0))
         return output
     
     def setDegreesAndMinutes(self, angleString):
@@ -49,7 +49,7 @@ class Angle():
         self.minutes = (self.minutes%60)
         if (isNegative):
             self.minutes = 60 - self.minutes
-        output = float(self.degrees + (self.minutes / 100))
+        output = float(self.degrees + (self.minutes / 60.0))
         return output
     
     def add(self, angle):
@@ -58,7 +58,7 @@ class Angle():
         self.degrees = (self.degrees + angle.degrees)
         self.degrees = (self.degrees + (int((self.minutes + angle.minutes) / 60))) % 360
         self.minutes = (self.minutes + angle.minutes)%60.0
-        output = float(self.degrees + (self.minutes / 100))
+        output = float(self.degrees + (self.minutes / 60.0))
         return output
     
     def subtract(self, angle):
@@ -67,7 +67,7 @@ class Angle():
         self.degrees = (self.degrees - angle.degrees)%360
         self.degrees = (self.degrees - (int((self.minutes - angle.minutes) / 60))) % 360
         self.minutes = (self.minutes - angle.minutes)%60.0
-        output = float(self.degrees + (self.minutes / 100))
+        output = float(self.degrees + (self.minutes / 60.0))
         return output
     
     def compare(self, angle):
@@ -89,4 +89,4 @@ class Angle():
         return str(self.degrees) + 'd' + str(self.minutes)
     
     def getDegrees(self):
-        return float(self.degrees) + (self.minutes / 100.0)
+        return float(self.degrees) + (self.minutes / 60.0)
