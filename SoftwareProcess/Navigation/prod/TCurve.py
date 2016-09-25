@@ -71,11 +71,15 @@ class TCurve(object):
         lowerBound = 0
         s = 4
         multiplicand = 0
+        
+        
+        
         while(abs((simpsonNew - simpsonOld) / simpsonNew) > epsilon):
             simpsonOld = simpsonNew
             w = (upperBound - lowerBound) / s
             i = 1
             iteration = 1
+            
             
             multiplicand = f(lowerBound, n)
             while(i < s):
@@ -85,15 +89,14 @@ class TCurve(object):
                     iteration = iteration + 1
                 else:
                     multiplicand = multiplicand + (2 * f(lowerBound + (iteration * w), n))
-                    iteration = iteration + 1
-                
+                    iteration = iteration + 1                
             multiplicand = multiplicand + f(upperBound, n)
-                
-                
-                
                 
             simpsonNew = (w/3) * multiplicand       
             s = s * 2
+            
+            
+
         return simpsonNew
     
         
