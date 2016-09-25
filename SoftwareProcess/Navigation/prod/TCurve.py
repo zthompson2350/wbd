@@ -98,7 +98,3 @@ class TCurve(object):
             
 
         return simpsonNew
-    
-        
-            
-        
