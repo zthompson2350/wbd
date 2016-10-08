@@ -3,10 +3,10 @@
         @author: Zachary Thompson
 '''
 
-class MyClass(object):
+class Fix():
 
     # Constructs a Fix object
-    def __init__(self, params):
+    def __init__(self, logFile=None):
         '''
         Constructor
         '''
