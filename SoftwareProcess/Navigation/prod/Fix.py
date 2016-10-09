@@ -3,6 +3,8 @@
         @author: Zachary Thompson
 '''
 
+import os
+
 class Fix():
 
     # Constructs a Fix object
@@ -19,6 +21,13 @@ class Fix():
     
         if (len(self.fileName) < 1):
             raise ValueError('Fix.__init__:  Filename must be at least 1 character long')
+        
+        if (os.path.isfile('./' + self.fileName)):
+            self.sightings = open(self.fileName, 'a')
+            print('append')
+        else:
+            self.sightings = open(self.fileName, 'w')
+            print('write')
     
     def setSightingFile(self, sightingFile=None):
         if(sightingFile == None):
