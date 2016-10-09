@@ -25,6 +25,13 @@ class FixTest(unittest.TestCase):
             aFix.setSightingFile()
         self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)])
         
+#Asserts true the first time it is set, false the second   
+    def test100setSightingFileDuplicateFile(self):
+        aFix = Fix.Fix()
+        self.assertTrue(aFix.setSightingFile("sightingFile"))
+        self.assertFalse(aFix.setSightingFile("sightingFile"))
+        
+        
 
 
 if __name__ == "__main__":

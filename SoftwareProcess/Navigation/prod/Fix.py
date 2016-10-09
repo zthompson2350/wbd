@@ -12,6 +12,7 @@ class Fix():
         '''
         if (logFile == None):
             self.fileName = "log.txt"
+            self.sightingFile = ""
         else:
             self.fileName = logFile
         pass
@@ -22,6 +23,9 @@ class Fix():
     def setSightingFile(self, sightingFile=None):
         if(sightingFile == None):
             raise ValueError('Fix.setSightingFile:  expected a sightingFile')
+        if(sightingFile == self.sightingFile):
+            return False
+        self.sightingFile = sightingFile
         return True
     
     
