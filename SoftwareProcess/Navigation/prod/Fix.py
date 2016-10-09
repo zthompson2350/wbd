@@ -15,7 +15,7 @@ class Fix():
             self.sightingFile = ""
         else:
             self.fileName = logFile
-        pass
+            self.sightingFile = ""
     
         if (len(self.fileName) < 1):
             raise ValueError('Fix.__init__:  Filename must be at least 1 character long')
@@ -23,10 +23,12 @@ class Fix():
     def setSightingFile(self, sightingFile=None):
         if(sightingFile == None):
             raise ValueError('Fix.setSightingFile:  expected a sightingFile')
+        elif((sightingFile[(len(sightingFile)-4):]) != ".xml"):
+            raise ValueError('Fix.setSightingFile: sightingFile must be an xml file')
         if(sightingFile == self.sightingFile):
             return False
         self.sightingFile = sightingFile
         return True
     
-    
-        
+    def getSightings(self):
+        pass

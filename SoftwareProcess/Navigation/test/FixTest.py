@@ -28,8 +28,16 @@ class FixTest(unittest.TestCase):
 #Asserts true the first time it is set, false the second   
     def test100setSightingFileDuplicateFile(self):
         aFix = Fix.Fix()
-        self.assertTrue(aFix.setSightingFile("sightingFile"))
-        self.assertFalse(aFix.setSightingFile("sightingFile"))
+        self.assertTrue(aFix.setSightingFile("sightingFile.xml"))
+        self.assertFalse(aFix.setSightingFile("sightingFile.xml"))
+        
+    def test105setSightingFileNotXML(self):
+        aFix = Fix.Fix()
+        expectedDiag = self.className + "setSightingFile:"
+        with self.assertRaises(ValueError) as context:
+            aFix.setSightingFile("sightingFile")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)])
+            
         
         
 
