@@ -47,7 +47,7 @@ class Angle():
                 self.minutes = 0.0
                 
             # Output the argument as it was passed in
-            output = float(self.degrees + (self.minutes / 60.0))
+        output = float(self.degrees + round(self.minutes, 1) / 60.0)
         return output
     
     # Sets degrees and minutes based on a string of specific formatting xdy.y
