@@ -4,6 +4,9 @@
 '''
 
 import os
+from xml.etree import ElementTree
+import datetime
+
 
 class Fix():
 
@@ -34,9 +37,6 @@ class Fix():
         elif((sightingFile[(len(sightingFile)-4):]) != ".xml"):
             raise ValueError('Fix.setSightingFile: sightingFile must be an xml file')
         
-        if(sightingFile == self.sightingFile):
-            return False
-        
         if (os.path.isfile('./' + sightingFile)):
             try:
                 tryToOpen = open(sightingFile, 'a')
@@ -45,13 +45,61 @@ class Fix():
                 raise ValueError('Fix.setSightingFile: unable to open sightingFile')
             self.sightingFile = sightingFile
         else:
-            try:
-                tryToOpen = open(sightingFile, 'w')
-                tryToOpen.close()
-            except:
-                raise ValueError('Fix.setSightingFile: unable to create sightingFile')
-            self.sightingFile = sightingFile
-        return True
+            raise ValueError('Fix.setSightingFile: unable to find sightingFile')
+        self.sightingFile = sightingFile
+            
+            
+            # TODO: write entry to log file
+        dom = ElementTree.parse(self.sightingFile)
+        sightings = dom.findall('sighting')
+        
+        today = datetime.datetime.now()
+        
+        
+        print(
+            "LOG: " + datetime.date.isoformat(today)
+              + " " + str(today.hour) + ":" + str(today.minute) + ":" + str(today.second)
+              + "-06:00 Start of log"
+              )
+        
+        today = datetime.datetime.now()
+        #time = datetime.time(today.hour, today.minute, today.second, tzinfo=GMT1())
+        #print("TIME: " + time.isoformat())
+        print(
+            "LOG: " + datetime.date.isoformat(today) + " " + str(today.hour)
+             + ":" + str(today.minute) + ":" + str(today.second) + "-06:00 Start of sighting file:  "
+             + self.sightingFile
+            )
+        
+        for s in sightings:
+            today = datetime.datetime.now()
+            body = s.find('body')
+            sightingDate = s.find('date')
+            sightingTime = s.find('time')
+            observation = s.find('observation')
+            print(
+                "LOG: " + datetime.date.isoformat(today) + " " + str(today.hour)
+                + ":" + str(today.minute) + ":" + str(today.second) + "-06:00 "
+                + body.text + "  " + sightingDate.text + "  " + sightingTime.text
+                + "  " + observation.text
+                )
+        
+        today = datetime.datetime.now()
+        print(
+            "LOG: " + datetime.date.isoformat(today) + " " + str(today.hour)
+             + ":" + str(today.minute) + ":" + str(today.second) + "-06:00 "
+             + "End of sighting file:  " + self.sightingFile
+            )
+        #self.fileName.write('LOG: ', date.today())
+        
+        return self.sightingFile
     
     def getSightings(self):
-        pass
+        if(self.sightingFile == ""):
+            raise ValueError('Fix.getSightings: No sightingFile has been set')
+        approximateLatitude = "0d0.0"
+        approximateLongitude = "0d0.0"
+        return(approximateLatitude, approximateLongitude)
+    
+aFix = Fix()
+aFix.setSightingFile("sightingFile.xml")

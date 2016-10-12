@@ -10,16 +10,14 @@ class Angle():
     # Constructs an Angle object
     def __init__(self):
         #set to 0 degrees 0 minutes
-        self.degrees = 0
-        self.minutes = 0.0
+        self.degrees = 0.0
     
     # Sets degrees to int or string included as an argument, 0 if no argument
     def setDegrees(self, degrees=None):
         
         # If there is not an argument, set degrees to 0.
         if (degrees == None):
-            self.degrees = 0
-            self.minutes = 0.0
+            self.degrees = 0.0
             
         # If the argument is not a float or an int raise a Value Error
         elif (not(isinstance(degrees, float)) and not(isinstance(degrees, int))):
@@ -27,28 +25,31 @@ class Angle():
         
         # If the argument is acceptable, store it
         else:
-            # Store the degree portion of the argument
-            self.degrees = int(degrees)%360
+            # Store the degree portion of the argument    
+            degrees = degrees%360.0
+            degString = str(degrees)
+            for c in degString:
+                if (c == '.'):
+                    hasDecimal = True
+                    break
+                else:
+                    hasDecimal = False
             
-            # Create a string from the argument and try to find a decimal point signifying it is a float
-            degstr = str(degrees)
-            decloc = degstr.find('.')
-            
-            # If the argument is a float, get the decimal values, add them to 0, multiply them by 60
-            # and store them in minutes
-            if (decloc != -1):
-                mins = '0.' + str(degrees)[decloc+1:]
-                argmins = float(mins)
-                argmins = (argmins * 60.0)
-                self.minutes = argmins
-                
-            # Otherwise, set minutes to 0
+            if(hasDecimal):
+                decLoc = degString.find('.')
+                mins = float('0' + degString[decLoc:])
+                mins = mins * 60.0
+                mins = round(mins, 1)
+                mins = mins / 60.0
+                degs = float(degString[:decLoc])
             else:
-                self.minutes = 0.0
-                
-            # Output the argument as it was passed in
-        output = float(self.degrees + round(self.minutes, 1) / 60.0)
-        return output
+                mins = 0
+                degs = degrees
+            
+                    
+            self.degrees = degs + mins
+
+        return self.degrees
     
     # Sets degrees and minutes based on a string of specific formatting xdy.y
     def setDegreesAndMinutes(self, angleString):
@@ -57,8 +58,6 @@ class Angle():
         if (not(isinstance(angleString, str))):
             raise ValueError('Angle.setDegreesAndMinutes:  Parameter should be a string')
 
-        # Used later to check if value entered was negative
-        isNegative = False
         
         # Find the d in the argument string
         delimeter = 'd'
@@ -80,8 +79,11 @@ class Angle():
         angleDegrees = angleString[:delimiterIndex]
         
         # If those values are not an integer, raise a Value Error
-        if (not(angleDegrees.isdigit())):
-            raise ValueError('Angle.setDegreesAndMinutes:  x must be an integer')
+        try:
+            int(angleDegrees)
+        except:
+            raise ValueError('Angle.setDegreesAndMinutes: x cannot be cast to a integer value')
+
         
         # If the values after the d cannot be converted to a float, raise a Value Error
         try:
@@ -89,50 +91,49 @@ class Angle():
         except:
             raise ValueError('Angle.setDegreesAndMinutes:  y.y must be an int or a float')
         
+        minuteString = angleString[delimiterIndex+1:]
+        for c in minuteString:
+            if(c == '.'):
+                foundDecimal = True
+                break
+            else:
+                foundDecimal = False
+        if (foundDecimal == True):
+            if (minuteString[len(minuteString) - 2] != '.'):
+                raise ValueError('Angle.setDegreesAndMinutes: y.y must be be rounded to the nearest tenth')
+        
         # If minutes is entered as a negative, raise a Value Error
         if (angleMinutes < 0):
             raise ValueError('Angle.setDegreesAndMinutes:  y.y must be positive')
         
         # Set the degrees and minutes based on the argument
-        self.degrees = int(angleDegrees)
-        self.minutes = angleMinutes
-        
-        # If degrees is less than 0, set isNegative to true
-        if (self.degrees < 0):
-            isNegative = True
+        if(int(angleDegrees) >= 0):
+            self.degrees = float(angleDegrees) + (angleMinutes / 60.0)
+        else:
+            self.degrees = float(angleDegrees) - (angleMinutes / 60.0)
             
         # Modularize degrees, add the number of times greater than 60 minutes is to degrees, and 
         # Modularize minutes
         self.degrees = self.degrees%360
-        self.degrees = self.degrees + (int(self.minutes / 60))
-        self.minutes = (self.minutes%60)
-        
-        # If the argument entered was negative, subtract 60 from minutes
-        if (isNegative):
-            self.minutes = 60 - self.minutes
-            
-        # Return the degree as a float with minutes as fractions of degrees
-        output = float(self.degrees + (self.minutes / 60.0))
-        return output
+        return self.degrees
     
     # Adds an instance of angle to the current instance
-    def add(self, angle):
+    def add(self, angle=None):
+        if(angle == None):
+            raise ValueError('Angle.add: Expected an Angle Parameter')
         
         # If the argument is not an angle, raise a Value Error
         if (not(isinstance(angle, Angle))):
             raise ValueError('Angle.add:  Parameter is not an Angle')
         
         # Add the two angles
-        self.degrees = (self.degrees + angle.degrees)
-        self.degrees = (self.degrees + (int((self.minutes + angle.minutes) / 60))) % 360
-        self.minutes = (self.minutes + angle.minutes)%60.0
-        
-        # Return the output as a float with minutes as fractions of degrees
-        output = float(self.degrees + (self.minutes / 60.0))
-        return output
+        self.degrees = (self.degrees + angle.degrees) % 360
+        return self.degrees
     
     # Subtract an Angle from this instance of Angle
-    def subtract(self, angle):
+    def subtract(self, angle=None):
+        if(angle == None):
+            raise ValueError('Angle.subtract: Expected an Angle Parameter')
         
         # If the argument is not an Angle, raise a Value Error
         if (not(isinstance(angle, Angle))):
@@ -140,15 +141,12 @@ class Angle():
         
         # Subtract the argument angle from the current angle
         self.degrees = (self.degrees - angle.degrees)%360
-        self.degrees = (self.degrees - (int((self.minutes - angle.minutes) / 60))) % 360
-        self.minutes = (self.minutes - angle.minutes)%60.0
-        
-        # Return the output as degrees with minutes as fractions of degrees
-        output = float(self.degrees + (self.minutes / 60.0))
-        return output
+        return self.degrees
     
     # Compare two angles
-    def compare(self, angle):
+    def compare(self, angle=None):
+        if(angle == None):
+            raise ValueError('Angle.compare: Expected an Angle Parameter')
         
         # If the argument is not an angle, raise a Value Error
         if (not(isinstance(angle, Angle))):
@@ -164,23 +162,18 @@ class Angle():
         
         # If both angles degrees are equal, check the minutes
         elif (self.degrees == angle.degrees):
-            
-            # If the current instance's minutes is bigger, return 1
-            if (self.minutes > angle.minutes):
-                return 1
-            
-            # If the argument instance's minutes is bigger, return -1
-            elif (self.minutes < angle.minutes):
-                return -1
-            
-            # If the angles are equal in value, return 0
-            else:
-                return 0
+            return 0
     
     # Returns the degrees in the format xdy.y
     def getString(self):
-        return str(self.degrees) + 'd' + str(self.minutes)
+        degString = str(self.degrees)
+        decLoc = degString.find('.')
+        degs = degString[:decLoc]
+        minsUnfixed = '0' + degString[decLoc:]
+        minsFixed = 60 * float(minsUnfixed)
+        return degs + 'd' + str(round(minsFixed, 1))
     
     # Returns the degrees as a float with minutes as fractions of degrees
     def getDegrees(self):
-        return float(self.degrees) + (self.minutes / 60.0)
+        return self.degrees
+#         return float(round(self.degrees, 4))

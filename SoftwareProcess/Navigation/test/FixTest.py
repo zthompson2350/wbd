@@ -24,12 +24,13 @@ class FixTest(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             aFix.setSightingFile()
         self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)])
-        
-#Asserts true the first time it is set, false the second   
-    def test100setSightingFileDuplicateFile(self):
-        aFix = Fix.Fix()
-        self.assertTrue(aFix.setSightingFile("sightingFile.xml"))
-        self.assertFalse(aFix.setSightingFile("sightingFile.xml"))
+  
+# # !!!IMPLEMENTATION CHANGED, TEST NO LONGER VALID!!!        
+# #Asserts true the first time it is set, false the second   
+#     def test100setSightingFileDuplicateFile(self):
+#         aFix = Fix.Fix()
+#         self.assertTrue(aFix.setSightingFile("sightingFile.xml"))
+#         self.assertFalse(aFix.setSightingFile("sightingFile.xml"))
         
     def test105setSightingFileNotXML(self):
         aFix = Fix.Fix()
@@ -37,8 +38,27 @@ class FixTest(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             aFix.setSightingFile("sightingFile")
         self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)])
+        
+    def test110setSightingFilePass(self):
+        aFix = Fix.Fix()
+        expected = "sightingFile.xml"
+        self.assertEquals(expected, aFix.setSightingFile("sightingFile.xml"))
             
         
+        
+
+    def test200getSightingsNoSightingFile(self):
+        aFix = Fix.Fix()
+        expectedDiag = self.className + "getSightings:"
+        with self.assertRaises(ValueError) as context:
+            aFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)])
+        
+    def test205getSightingsPass(self):
+        aFix = Fix.Fix()
+        aFix.setSightingFile("sightingFile.xml")
+        expected = ("0d0.0", "0d0.0")
+        self.assertEquals(expected, aFix.getSightings())
         
 
 
