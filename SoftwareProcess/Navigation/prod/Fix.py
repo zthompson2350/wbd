@@ -100,6 +100,3 @@ class Fix():
         approximateLatitude = "0d0.0"
         approximateLongitude = "0d0.0"
         return(approximateLatitude, approximateLongitude)
-    
-aFix = Fix()
-aFix.setSightingFile("sightingFile.xml")
