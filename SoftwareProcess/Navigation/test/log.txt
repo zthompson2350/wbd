@@ -1,0 +1,13 @@
+LOG: 2016-10-15 15:23:21-06:00 Start of log
+LOG: 2016-10-15 15:23:21-06:00 Start of sighting file:  sightingFile.xml
+LOG: 2016-10-15 15:23:21-06:00 Start of log
+LOG: 2016-10-15 15:23:21-06:00 Start of sighting file:  sightingFile.xml
+Log: 2016-10-15 15:23:21-06:00 Aldebaran 2016-03-01 23:40:01 15d6.0
+Log: 2016-10-15 15:23:21-06:00 Peacock 2016-03-02 00:05:05 42d54.0
+Log: 2016-10-15 15:23:21-06:00 End of sighting file: sightingFile.xmlLOG: 2016-10-15 15:23:44-06:00 Start of log
+LOG: 2016-10-15 15:23:44-06:00 Start of sighting file:  sightingFile.xml
+LOG: 2016-10-15 15:23:44-06:00 Start of log
+LOG: 2016-10-15 15:23:44-06:00 Start of sighting file:  sightingFile.xml
+Log: 2016-10-15 15:23:44-06:00 Aldebaran 2016-03-01 23:40:01 15d4.6
+Log: 2016-10-15 15:23:44-06:00 Peacock 2016-03-02 00:05:05 42d51.6
+Log: 2016-10-15 15:23:44-06:00 End of sighting file: sightingFile.xml

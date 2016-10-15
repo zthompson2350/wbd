@@ -176,4 +176,3 @@ class Angle():
     # Returns the degrees as a float with minutes as fractions of degrees
     def getDegrees(self):
         return self.degrees
-#         return float(round(self.degrees, 4))
