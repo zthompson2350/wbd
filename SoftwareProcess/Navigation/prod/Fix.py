@@ -46,6 +46,7 @@ class Fix():
         hours = [None] * len(sightings)
         mins = [None] * len(sightings)
         seconds = [None] * len(sightings)
+        bodies = [None] * len(sightings)
         i = 0
         
         
@@ -56,6 +57,7 @@ class Fix():
             hours[i] = s.find('time').text[0:2]
             mins[i] = s.find('time').text[3:5]
             seconds[i] = s.find('time').text[6:] 
+            bodies[i] = s.find('body').text
             i = i + 1
         
         bestYear = 9999
@@ -64,6 +66,7 @@ class Fix():
         bestHour = 9999
         bestMin = 9999
         bestSecond = 9999
+        bestBody = "zzzz"
         numBests = 0
         orderSet = 0
         
@@ -72,6 +75,15 @@ class Fix():
         bests = [0] * len(sightings)
         
         while (orderSet < len(order)):
+            bestYear = 9999
+            bestMonth = 9999
+            bestDay = 9999
+            bestHour = 9999
+            bestMin = 9999
+            bestSecond = 9999
+            bestBody = "zzzz"
+        
+        
             i = 0
             while (i < len(bests)):
                 bests[i] = 0
@@ -113,7 +125,7 @@ class Fix():
             while (i < len(months)):
                 if (bests[i] == 1):
                     if(int(months[i]) == bestMonth and ordered[i] == 0):
-                        numBests = numBests + 1
+                        numBests = numBests + 1 #100
                     else:
                         bests[i] = 0
                 i = i + 1
@@ -225,9 +237,35 @@ class Fix():
             while (i < len(seconds)):
                 if (bests[i] == 1):
                     if(int(seconds[i]) == bestSecond and ordered[i] == 0):
-                        numBests = numBests + 1
+                        numBests = numBests + 1 #200
                     else:
                         bests[i] = 0
+                        
+            i = 0            
+            if (numBests == 1):
+                while (i < len(bests)):
+                    if(bests[i] == 1):
+                        order[orderSet] = i
+                        ordered[i] = 1
+                        break
+            else:
+                while (i < len(bodies)):
+                    if(bests[i] == 1):
+                        if(bodies[i] > bestBody and ordered[i] == 0):
+                            bestBody = bodies[i]
+                    i = i + 1
+                    
+            if (order[orderSet] != None):
+                orderSet = orderSet + 1
+                continue
+            
+            i = 0            
+            if (numBests == 1):
+                while (i < len(bests)):
+                    if(bests[i] == 1):
+                        order[orderSet] = i
+                        ordered[i] = 1
+                        break
                         
         return order
     
@@ -285,39 +323,19 @@ class Fix():
         while (i < len(order)):
             j = order[i]
             if(sightings[j].find('horizon').text == 'Natural'):
-                dip = (-0.97) * math.sqrt(float(sightings[j].find('height').text))      
+                dip = ((-0.97) * math.sqrt(float(sightings[j].find('height').text))) / 60.0      
             else:
-                dip = 0
+                dip = 0.0
             obsv = sightings[j].find('observation').text
             myAngle.setDegreesAndMinutes(obsv)
             altitude = myAngle.getDegrees()
-            temp = (int(sightings[j].find('temperature').text) - 32) * (5/9)
-            refraction = ((-0.00452) * float(sightings[j].find('pressure').text)) / ((273 +temp) / math.tan(math.radians(altitude)))
+            temp = (float(sightings[j].find('temperature').text) - 32) * (5.0/9.0)
+            refraction = ((-0.00452) * float(sightings[j].find('pressure').text)) / ((273.0 +temp) / math.tan(math.radians(altitude)))
             adjAlt = altitude + dip + refraction
-            adjAltString = str(adjAlt)
-            for a in adjAltString:
-                if (a == '.'):
-                    hasDec = True
-                    break
-                else:
-                    hasDec = False
-                    
-            if (hasDec):
-                decLoc = adjAltString.find('.')
-                mins = float('0' + adjAltString[decLoc:])
-                mins = mins * 60.0
-                mins = round(mins, 1)
-                mins = mins / 60.0
-                degs = float(adjAltString[:decLoc])
-            else:
-                mins = 0
-                degs = adjAlt
-                
-            adjAlt = degs + mins
-#             adjAlt = round(adjAlt, 1)
+
+
             myAngle.setDegrees(adjAlt)
             adjAltAngle = myAngle.getString()
-#             adjAltStr = str(adjAlt)
             
             today = datetime.datetime.now()
             self.log.write(
@@ -329,6 +347,6 @@ class Fix():
             i = i + 1
             
         today = datetime.datetime.now()
-        self.log.write("Log: " + self.__timeAndDate__(today) + "End of sighting file: " + self.sightingFile)
+        self.log.write("Log: " + self.__timeAndDate__(today) + "End of sighting file: " + self.sightingFile + "\n")
             
         return(approximateLatitude, approximateLongitude)
