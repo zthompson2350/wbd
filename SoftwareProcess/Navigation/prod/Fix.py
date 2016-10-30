@@ -10,7 +10,6 @@ from xml.etree import ElementTree
 import datetime
 import math
 import Angle
-from lib2to3.fixer_util import String
 
 class Fix():
 
@@ -22,11 +21,13 @@ class Fix():
         if (logFile == None):
             self.fileName = "log.txt"
             self.sightingFile = ""
+            self.ariesFile = ""
         elif (not(isinstance(logFile, basestring))):
             raise ValueError('Fix.__init__: Filename must be of type String')
         else:
             self.fileName = logFile
             self.sightingFiles = ""
+            self.ariesFile = ""
     
         if (len(self.fileName) < 1):
             raise ValueError('Fix.__init__:  Filename must be at least 1 character long')
@@ -36,7 +37,8 @@ class Fix():
         else:
             self.log = open(self.fileName, 'w')
             today = datetime.datetime.now()
-            self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
+            path = os.path.abspath('./' + self.fileName)
+            self.log.write("LOG: " + self.__timeAndDate__(today) + "Log File:\t" + path + "\n")
             
         self.log.close()
             
@@ -296,27 +298,40 @@ class Fix():
         self.sightingFile = sightingFile
         
         today = datetime.datetime.now()
+        path = os.path.abspath('./' + sightingFile)
         self.log = open(self.fileName, 'a')
 #         self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
-        self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of sighting file:  " + self.sightingFile + "\n")
+        self.log.write("LOG: " + self.__timeAndDate__(today) + "Sighting file:\t" + path + "\n")
         self.log.close()
         
-#         for s in sightings:
-#             today = datetime.datetime.now()
-#             body = s.find('body')
-#             sightingDate = s.find('date')
-#             sightingTime = s.find('time')
-#             observation = s.find('observation')
-#             print(
-#                 "LOG: " + self.__timeAndDate__(today) + body.text + "  " 
-#                 + sightingDate.text + "  " + sightingTime.text + "  " + observation.text
-#                 )
-#         
-#         today = datetime.datetime.now()
-#         print("LOG: " + self.__timeAndDate__(today) + "End of sighting file:  " + self.sightingFile)
-        #self.fileName.write('LOG: ', date.today())
+        return path
+    
+    def setAriesFile(self, ariesFile=None):
+        if (ariesFile == None):
+            raise ValueError('Fix.setAriesFile:  Expected an Aries File')
+        elif(not(isinstance(ariesFile, basestring))):
+            raise ValueError('Fix.setAriesFile:  Aries File must be of type String')
+        elif((ariesFile[(len(ariesFile)-4):]) != ".txt"):
+            raise ValueError('Fix.setAriesFile:  Aries File must be a txt file')
         
-        return self.sightingFile
+        if(os.path.isfile('./' + ariesFile)):
+            try:
+                tryToOpen = open(ariesFile, 'a')
+                tryToOpen.close()
+            except:
+                raise ValueError('Fix.setAriesFile: unable to open Aries File')
+            self.ariesFile = ariesFile
+        else:
+            raise ValueError('Fix.setAriesFile:  Unable to find Aries File')
+        
+        today = datetime.datetime.now()
+        path = os.path.abspath('./' + ariesFile)
+        self.log = open(self.fileName, 'a')
+#         self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
+        self.log.write("LOG: " + self.__timeAndDate__(today) + "Aries file:\t" + path + "\n")
+        self.log.close()
+        
+        return path
     
     def getSightings(self):
         if(self.sightingFile == ""):
@@ -365,3 +380,8 @@ class Fix():
         self.log.close()
             
         return(approximateLatitude, approximateLongitude)
+    
+    
+myFix = Fix()
+myFix.setSightingFile("sightingFile.xml")
+myFix.setAriesFile("aries.txt")
