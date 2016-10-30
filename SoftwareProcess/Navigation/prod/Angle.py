@@ -80,7 +80,7 @@ class Angle():
         
         # If those values are not an integer, raise a Value Error
         try:
-            int(angleDegrees)
+            angleDegrees = int(angleDegrees)
         except:
             raise ValueError('Angle.setDegreesAndMinutes: x cannot be cast to a integer value')
 

@@ -7,8 +7,10 @@ class TestFix(unittest.TestCase):
     
     def setUp(self):
         self.className = "Fix."
-        self.logStartString = "Start of log"
-        self.logSightingString = "Start of sighting file"
+        self.logStartString = "Log file"
+        self.logSightingString = "Sighting file"
+        self.logAriesString = "Aries file"
+        self.logStarString = "Star file"
         
         # set default log file name
         self.DEFAULT_LOG_FILE = "log.txt"
@@ -48,7 +50,7 @@ class TestFix(unittest.TestCase):
             theLogFile = open(self.DEFAULT_LOG_FILE, 'r')
             entry = theLogFile.readline()
             del theLogFile
-            self.assertNotEquals(-1, entry.find("Start of log"), 
+            self.assertNotEquals(-1, entry.find("Log file"), 
                                  "Minor:  first line of log is incorrect")
         except IOError:
             self.fail()
@@ -131,7 +133,8 @@ class TestFix(unittest.TestCase):
         theFix = F.Fix(logFile=self.RANDOM_LOG_FILE)
         try:
             result = theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
-            self.assertEquals(result, "CA02_200_ValidStarSightingFile.xml")
+            expectedResult = os.path.abspath("CA02_200_ValidStarSightingFile.xml")
+            self.assertEquals(result, expectedResult)
         except:
             self.fail("Minor: incorrect keyword specified in setSighting parm")
         self.cleanup()   
@@ -139,7 +142,8 @@ class TestFix(unittest.TestCase):
     def test200_020_ShouldSetValidSightingFile(self):
         theFix = F.Fix()
         result = theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
-        self.assertEquals(result,"CA02_200_ValidStarSightingFile.xml")
+        expectedResult = os.path.abspath("CA02_200_ValidStarSightingFile.xml")
+        self.assertEquals(result, expectedResult)
         theLogFile = open(self.DEFAULT_LOG_FILE, "r")
         logFileContents = theLogFile.readlines()
         self.assertNotEquals(-1, logFileContents[-1].find(self.logSightingString), 
@@ -230,6 +234,8 @@ class TestFix(unittest.TestCase):
         expectedResult = ("0d0.0", "0d0.0")
         theFix = F.Fix()
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         result = theFix.getSightings()
         self.assertTupleEqual(expectedResult, result, 
                               "Minor:  incorrect return value from getSightings")
@@ -238,6 +244,8 @@ class TestFix(unittest.TestCase):
         testFile = "CA02_300_ValidWithMixedIndentation.xml"
         theFix = F.Fix()
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         try:
             theFix.getSightings()
             self.assertTrue(True)
@@ -249,6 +257,8 @@ class TestFix(unittest.TestCase):
         targetStringList = ["Aldebaran", "2016-03-01", "23:40:01"]
         theFix = F.Fix(self.RANDOM_LOG_FILE)
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         theFix.getSightings()
         
         theLogFile = open(self.RANDOM_LOG_FILE, "r")
@@ -273,6 +283,8 @@ class TestFix(unittest.TestCase):
             ]
         theFix = F.Fix(self.RANDOM_LOG_FILE)
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         theFix.getSightings()
         
         theLogFile = open(self.RANDOM_LOG_FILE, "r")
@@ -298,6 +310,8 @@ class TestFix(unittest.TestCase):
             ]
         theFix = F.Fix(self.RANDOM_LOG_FILE)
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         theFix.getSightings()
         
         theLogFile = open(self.RANDOM_LOG_FILE, "r")
@@ -321,6 +335,8 @@ class TestFix(unittest.TestCase):
         
         theFix = F.Fix(self.RANDOM_LOG_FILE)
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         theFix.getSightings()
         
         theLogFile = open(self.RANDOM_LOG_FILE, "r")
@@ -342,6 +358,8 @@ class TestFix(unittest.TestCase):
             ]
         theFix = F.Fix(self.RANDOM_LOG_FILE)
         theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
         theFix.getSightings()
         
         theLogFile = open(self.RANDOM_LOG_FILE, "r")

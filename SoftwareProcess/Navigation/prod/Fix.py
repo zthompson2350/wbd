@@ -22,12 +22,14 @@ class Fix():
             self.fileName = "log.txt"
             self.sightingFile = ""
             self.ariesFile = ""
+            self.starFile = ""
         elif (not(isinstance(logFile, basestring))):
             raise ValueError('Fix.__init__: Filename must be of type String')
         else:
             self.fileName = logFile
             self.sightingFiles = ""
             self.ariesFile = ""
+            self.starFile = ""
     
         if (len(self.fileName) < 1):
             raise ValueError('Fix.__init__:  Filename must be at least 1 character long')
@@ -38,7 +40,7 @@ class Fix():
             self.log = open(self.fileName, 'w')
             today = datetime.datetime.now()
             path = os.path.abspath('./' + self.fileName)
-            self.log.write("LOG: " + self.__timeAndDate__(today) + "Log File:\t" + path + "\n")
+            self.log.write("LOG: " + self.__timeAndDate__(today) + "Log file:\t" + path + "\n")
             
         self.log.close()
             
@@ -195,6 +197,7 @@ class Fix():
                         numBests = numBests + 1
                     else:
                         bests[i] = 0
+                i = i + 1
                         
             i = 0            
             if (numBests == 1):
@@ -203,6 +206,7 @@ class Fix():
                         order[orderSet] = i
                         ordered[i] = 1
                         break
+                    i = i + 1
             else:
                 while (i < len(mins)):
                     if(bests[i] == 1):
@@ -222,6 +226,7 @@ class Fix():
                         numBests = numBests + 1
                     else:
                         bests[i] = 0
+                i = i + 1
                         
             i = 0            
             if (numBests == 1):
@@ -230,6 +235,7 @@ class Fix():
                         order[orderSet] = i
                         ordered[i] = 1
                         break
+                    i = i + 1
             else:
                 while (i < len(seconds)):
                     if(bests[i] == 1):
@@ -249,6 +255,7 @@ class Fix():
                         numBests = numBests + 1 #200
                     else:
                         bests[i] = 0
+                i = i + 1
                         
             i = 0            
             if (numBests == 1):
@@ -257,6 +264,7 @@ class Fix():
                         order[orderSet] = i
                         ordered[i] = 1
                         break
+                    i = i + 1
             else:
                 while (i < len(bodies)):
                     if(bests[i] == 1):
@@ -275,6 +283,7 @@ class Fix():
                         order[orderSet] = i
                         ordered[i] = 1
                         break
+                    i = i + 1
                         
         return order
     
@@ -300,7 +309,6 @@ class Fix():
         today = datetime.datetime.now()
         path = os.path.abspath('./' + sightingFile)
         self.log = open(self.fileName, 'a')
-#         self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
         self.log.write("LOG: " + self.__timeAndDate__(today) + "Sighting file:\t" + path + "\n")
         self.log.close()
         
@@ -319,7 +327,7 @@ class Fix():
                 tryToOpen = open(ariesFile, 'a')
                 tryToOpen.close()
             except:
-                raise ValueError('Fix.setAriesFile: unable to open Aries File')
+                raise ValueError('Fix.setAriesFile: Unable to open Aries File')
             self.ariesFile = ariesFile
         else:
             raise ValueError('Fix.setAriesFile:  Unable to find Aries File')
@@ -333,9 +341,39 @@ class Fix():
         
         return path
     
+    def setStarFile(self, starFile=None):
+        if (starFile == None):
+            raise ValueError('Fix.setStarFile:  Expected a Star File')
+        elif(not(isinstance(starFile, basestring))):
+            raise ValueError('Fix.setStarFile:  Star File must be of type string')
+        elif((starFile[len(starFile)-4:]) != ".txt"):
+            raise ValueError("Fix.setStarFile:  Star File must be a txt file")
+        
+        if (os.path.isfile('./' + starFile)):
+            try:
+                tryToOpen = open(starFile, 'a')
+                tryToOpen.close()
+            except:
+                raise ValueError('Fix.setStarFile:  Unable to open Star File')
+            self.starFile = starFile
+        else:
+            raise ValueError('Fix.setStarFile:  Unable to find Star File')
+        
+        today = datetime.datetime.now()
+        path = os.path.abspath('./' + starFile)
+        self.log = open(self.fileName, 'a')
+        self.log.write("LOG: " + self.__timeAndDate__(today) + "Star file:\t" + path + "\n")
+        self.log.close()
+        
+        return path
+    
     def getSightings(self):
         if(self.sightingFile == ""):
             raise ValueError('Fix.getSightings: No sightingFile has been set')
+        elif(self.ariesFile == ""):
+            raise ValueError('Fix.getSightings:  No Aries File has been set')
+        elif(self.starFile == ""):
+            raise ValueError('Fix.getSightings:  No Star File has been set')
         approximateLatitude = "0d0.0"
         approximateLongitude = "0d0.0"
         
@@ -344,10 +382,15 @@ class Fix():
         sightings = dom.findall('sighting')
         order = self.__getOrder__(sightings)
         
-            
+        sightingErrors = 0    
         i = 0
         while (i < len(order)):
             j = order[i]
+            test = sightings[j].find('horizon')
+            if(test == None):
+                sightingErrors = sightingErrors + 1
+                i = i + 1
+                continue
             if(sightings[j].find('horizon').text == 'Natural'):
                 dip = ((-0.97) * math.sqrt(float(sightings[j].find('height').text))) / 60.0      
             else:
@@ -356,32 +399,33 @@ class Fix():
             myAngle.setDegreesAndMinutes(obsv)
             altitude = myAngle.getDegrees()
             temp = (float(sightings[j].find('temperature').text) - 32) * (5.0/9.0)
-            refraction = ((-0.00452) * float(sightings[j].find('pressure').text)) / ((273.0 +temp) / math.tan(math.radians(altitude)))
+            refraction = ((-0.00452) * float(sightings[j].find('pressure').text)) / (273.0 +temp) / math.tan(math.radians(altitude))
             adjAlt = altitude + dip + refraction
 
 
             myAngle.setDegrees(adjAlt)
             adjAltAngle = myAngle.getString()
-            
+        
             today = datetime.datetime.now()
             self.log = open(self.fileName, 'a')
             self.log.write(
-                            "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + " "
-                            + sightings[j].find('date').text + " " + sightings[j].find('time').text + " "
-                            + adjAltAngle + "\n"
-                           )
+                    "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + "\t"
+                    + sightings[j].find('date').text + "\t" + sightings[j].find('time').text + "\t"
+                    + adjAltAngle + "\n"
+                    )
             self.log.close()
             
             i = i + 1
-            
         today = datetime.datetime.now()
         self.log = open(self.fileName, 'a')
-        self.log.write("Log: " + self.__timeAndDate__(today) + "End of sighting file: " + self.sightingFile + "\n")
+        self.log.write("Log: " + self.__timeAndDate__(today) + "Sighting errors:\t" + str(sightingErrors) + "\n")
         self.log.close()
             
         return(approximateLatitude, approximateLongitude)
     
     
-myFix = Fix()
-myFix.setSightingFile("sightingFile.xml")
-myFix.setAriesFile("aries.txt")
+# myFix = Fix()
+# myFix.setSightingFile("sightingFile.xml")
+# myFix.setAriesFile("aries.txt")
+# myFix.setStarFile("stars.txt")
+# myFix.getSightings()
