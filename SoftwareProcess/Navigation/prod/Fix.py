@@ -10,6 +10,7 @@ from xml.etree import ElementTree
 import datetime
 import math
 import Angle
+from lib2to3.fixer_util import String
 
 class Fix():
 
@@ -21,6 +22,8 @@ class Fix():
         if (logFile == None):
             self.fileName = "log.txt"
             self.sightingFile = ""
+        elif (not(isinstance(logFile, basestring))):
+            raise ValueError('Fix.__init__: Filename must be of type String')
         else:
             self.fileName = logFile
             self.sightingFiles = ""
@@ -32,6 +35,10 @@ class Fix():
             self.log = open(self.fileName, 'a')
         else:
             self.log = open(self.fileName, 'w')
+            today = datetime.datetime.now()
+            self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
+            
+        self.log.close()
             
     def __timeAndDate__(self, today):
         return(
@@ -272,6 +279,8 @@ class Fix():
     def setSightingFile(self, sightingFile=None):
         if(sightingFile == None):
             raise ValueError('Fix.setSightingFile:  expected a sightingFile')
+        elif(not(isinstance(sightingFile, basestring))):
+            raise ValueError('Fix.setSightingFile: sightingFile must be of type String')
         elif((sightingFile[(len(sightingFile)-4):]) != ".xml"):
             raise ValueError('Fix.setSightingFile: sightingFile must be an xml file')
         
@@ -287,8 +296,10 @@ class Fix():
         self.sightingFile = sightingFile
         
         today = datetime.datetime.now()
-        self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
+        self.log = open(self.fileName, 'a')
+#         self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of log\n")
         self.log.write("LOG: " + self.__timeAndDate__(today) + "Start of sighting file:  " + self.sightingFile + "\n")
+        self.log.close()
         
 #         for s in sightings:
 #             today = datetime.datetime.now()
@@ -338,15 +349,19 @@ class Fix():
             adjAltAngle = myAngle.getString()
             
             today = datetime.datetime.now()
+            self.log = open(self.fileName, 'a')
             self.log.write(
                             "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + " "
                             + sightings[j].find('date').text + " " + sightings[j].find('time').text + " "
                             + adjAltAngle + "\n"
                            )
+            self.log.close()
             
             i = i + 1
             
         today = datetime.datetime.now()
+        self.log = open(self.fileName, 'a')
         self.log.write("Log: " + self.__timeAndDate__(today) + "End of sighting file: " + self.sightingFile + "\n")
+        self.log.close()
             
         return(approximateLatitude, approximateLongitude)
