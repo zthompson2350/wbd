@@ -572,7 +572,7 @@ class Fix():
             SHAstarAngle.setDegreesAndMinutes(SHAstar)
             GHAobservation = GHAariesAngle
             GHAobservation.add(SHAstarAngle)
-            
+            ariesfile.close()
             
                         
             
