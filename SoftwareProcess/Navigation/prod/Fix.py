@@ -38,10 +38,9 @@ class Fix():
             self.log = open(self.fileName, 'a')
         else:
             self.log = open(self.fileName, 'w')
-            today = datetime.datetime.now()
-            path = os.path.abspath('./' + self.fileName)
-            self.log.write("LOG: " + self.__timeAndDate__(today) + "Log file:\t" + path + "\n")
-            
+        today = datetime.datetime.now()
+        path = os.path.abspath('./' + self.fileName)
+        self.log.write("LOG: " + self.__timeAndDate__(today) + "Log file:\t" + path + "\n")    
         self.log.close()
             
     def __timeAndDate__(self, today):
@@ -401,17 +400,189 @@ class Fix():
             temp = (float(sightings[j].find('temperature').text) - 32) * (5.0/9.0)
             refraction = ((-0.00452) * float(sightings[j].find('pressure').text)) / (273.0 +temp) / math.tan(math.radians(altitude))
             adjAlt = altitude + dip + refraction
-
-
             myAngle.setDegrees(adjAlt)
             adjAltAngle = myAngle.getString()
-        
+            
+            
+            
+            targDate = sightings[j].find('date').text
+            targMonth = targDate[5:7]
+            targDay = targDate[8:]
+            starfile = open(self.starFile, 'r')
+            oldDate = None
+            for row in starfile:
+                if sightings[j].find('body').text in row:
+                    lindex = 0
+                    while(i < len(row)):
+                        try:
+                            int(row[lindex])
+                            break
+                        except:
+                            lindex = lindex + 1
+                            
+                    rindex = lindex
+                    while (rindex < len(row)):
+                        if(row[rindex].isspace()):
+                            break
+                        rindex = rindex + 1
+                        
+                    currDate = row[lindex:rindex]
+                    if (oldDate == None):
+                        oldDate = currDate
+                    currMonth = currDate[0:2]
+                    currDay = currDate[3:5]
+                        
+                    if(currMonth == targMonth):
+                        if (currDay == targDay):
+                            oldDate = currDate
+                            break
+                        elif(currDay > targDay):
+                            break
+                        else:
+                            oldDate = currDate
+                    elif(currMonth > targMonth):
+                        break
+                    else:
+                        oldDate = currDate
+             
+#             targDate = oldDate
+            starfile.close()
+            starfile = open(self.starFile, 'r')
+            for row in starfile:
+                if sightings[j].find('body').text in row:
+                    if oldDate in row:
+                        lindex = 0
+                        dindex = 0
+                        rindex = 0
+                        
+                        while (dindex < len(row)):
+                            if (row[dindex] == 'd'):
+                                break
+                            dindex = dindex + 1
+                            
+                        lindex = row.rfind('\t', 0, dindex) + 1
+                        rindex = row.find('\t', dindex)
+                        SHAstar = row[lindex:rindex]
+                        
+                        dindex = dindex + 1
+                        while (dindex < len(row)):
+                            if (row[dindex] == 'd'):
+                                break
+                            dindex = dindex + 1
+                        lindex = row.rfind('\t', rindex, dindex) + 1
+                        rindex = row.find('\t', dindex)
+                        latitude = row[lindex:rindex]
+                        break
+            
+            starfile.close()
+            
+            
+            dindex = 0
+            while(dindex < len(SHAstar)):
+                if SHAstar[dindex] == 'd':
+                    break
+                dindex = dindex + 1
+            
+            x = int(SHAstar[:dindex])
+            yy = float(SHAstar[dindex+1:])
+            
+            dindex = 0
+            while(dindex < len(latitude)):
+                if (latitude[dindex] == 'd'):
+                    break
+                dindex = dindex + 1
+                
+            w = int(latitude[:dindex])
+            zz = float(latitude[dindex+1:])
+            
+            if (x < 0 or x >= 360):
+                sightingErrors = sightingErrors + 1
+                i = i + 1
+                continue
+            elif (yy < 0.0 or yy >= 60.0):
+                sightingErrors = sightingErrors + 1
+                i = i + 1
+                continue
+            elif (w <= -90 or w >= 90):
+                sightingErrors = sightingErrors + 1
+                i = i + 1
+                continue
+            elif (zz < 0.0 or zz >= 60.0):
+                sightingErrors = sightingErrors + 1
+                i = i + 1
+                continue
+            
+                    
             today = datetime.datetime.now()
+            sightTime = sightings[j].find('time').text
+            sightHour = int(sightTime[0:2])
+            
+            ariesfile = open(self.ariesFile, 'r')
+            for row in ariesfile:
+                if (targMonth + "/" + targDay + "/17") in row:
+                    lindex = 0
+                    while (lindex < len(row)):
+                        if (row[lindex].isspace()):
+                            break
+                        lindex = lindex + 1
+                    lindex = lindex + 1
+                    rindex = lindex
+                    while (rindex < len(row)):
+                        if(row[rindex].isspace()):
+                            break
+                        rindex = rindex + 1
+                    ariesHour = int(row[lindex:rindex])
+                    if (ariesHour == sightHour):
+                        ariesEntry = unicode(row)
+                        break
+            lindex = rindex
+            while (lindex < len(ariesEntry)):
+                if (ariesEntry[lindex].isnumeric()):
+                    break
+                lindex = lindex + 1
+            GHAaries1 = ariesEntry[lindex:len(ariesEntry)-1]
+            
+            for row in ariesfile:
+                ariesEntry = unicode(row)
+                break
+            lindex = row.rfind('\t')
+            while (lindex < len(ariesEntry)):
+                if (ariesEntry[lindex].isnumeric()):
+                    break
+                lindex = lindex + 1
+            GHAaries2 = ariesEntry[lindex:len(ariesEntry)-1]
+            minutes = float(sightTime[3:5])
+            seconds = float(sightTime[6:])
+            s = (minutes * 60.0) + seconds
+            
+            
+            GHAangle1 = Angle.Angle()
+            GHAangle1.setDegreesAndMinutes(str(GHAaries1))
+            GHAangle2 = Angle.Angle()
+            GHAangle2.setDegreesAndMinutes(str(GHAaries2))
+            subAngle = GHAangle2
+            subAngle.subtract(GHAangle1)
+            subDegs = subAngle.getDegrees()
+            mulDegs = subDegs * (s / 3600.0)
+            mulAngle = Angle.Angle()
+            mulAngle.setDegrees(mulDegs)
+            GHAariesAngle = GHAangle1
+            GHAariesAngle.add(mulAngle)
+            SHAstarAngle = Angle.Angle()
+            SHAstarAngle.setDegreesAndMinutes(SHAstar)
+            GHAobservation = GHAariesAngle
+            GHAobservation.add(SHAstarAngle)
+            
+            
+                        
+            
+            
+            
             self.log = open(self.fileName, 'a')
             self.log.write(
                     "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + "\t"
-                    + sightings[j].find('date').text + "\t" + sightings[j].find('time').text + "\t"
-                    + adjAltAngle + "\n"
+                    + sightings[j].find('date').text + "\t" + sightTime + "\t"
+                    + adjAltAngle + "\t" + latitude + "\t" + GHAobservation.getString() + "\n"
                     )
             self.log.close()
             
@@ -423,9 +594,3 @@ class Fix():
             
         return(approximateLatitude, approximateLongitude)
     
-    
-# myFix = Fix()
-# myFix.setSightingFile("sightingFile.xml")
-# myFix.setAriesFile("aries.txt")
-# myFix.setStarFile("stars.txt")
-# myFix.getSightings()
