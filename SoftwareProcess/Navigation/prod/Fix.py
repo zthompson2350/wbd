@@ -366,7 +366,7 @@ class Fix():
         
         return path
     
-    def getSightings(self):
+    def getSightings(self, assumedLatitude=None, assumedLongitude=None):
         if(self.sightingFile == ""):
             raise ValueError('Fix.getSightings: No sightingFile has been set')
         elif(self.ariesFile == ""):

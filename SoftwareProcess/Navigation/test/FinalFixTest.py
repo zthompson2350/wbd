@@ -270,7 +270,7 @@ class TestFix2(unittest.TestCase):
         self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
                           "Major:  failure to check for invalid body" )
         
-    def test300_995_invalidHorizonInFile(self):
+    def test300_095_invalidHorizonInFile(self):
         expectedDiag = self.className + "getSightings:"
         theFix = F.Fix()
         with self.assertRaises(ValueError) as context:
@@ -280,7 +280,62 @@ class TestFix2(unittest.TestCase):
                           "Major:  failure to check for invalid body" )
         
         
+
+    
+    def test300_100_longitudeInvalidX(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
+            theFix.setAriesFile("aries.txt")
+            theFix.setStarFile("stars.txt")
+            theFix.getSightings("N2d2.5", "xd2.5")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major: failure to check for invalid longitude x value" )
+    
+    def test300_105_longitudeInvalidYY(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
+            theFix.setAriesFile("aries.txt")
+            theFix.setStarFile("stars.txt")
+            theFix.getSightings("N2d2.5", "3dy.y")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major: failure to check for invalid longitude y.y value" )
         
+    def test300_110_latitudeInvalidDirection(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
+            theFix.setAriesFile("aries.txt")
+            theFix.setStarFile("stars.txt")
+            theFix.getSightings("W2d2.5", "3d2.5")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major: failure to check for invalid latitude direction value" )
+    
+    def test300_115_latitudeInvalidX(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
+            theFix.setAriesFile("aries.txt")
+            theFix.setStarFile("stars.txt")
+            theFix.getSightings("Nxd2.5", "3d2.5")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major: failure to check for invalid latitude x value" )
+    
+    def test300_120_latitudeInvalidYY(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_200_ValidStarSightingFile.xml")
+            theFix.setAriesFile("aries.txt")
+            theFix.setStarFile("stars.txt")
+            theFix.getSightings("N2dy.y", "3d2.5")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major: failure to check for invalid longitude y.y value" )
         
         
         
