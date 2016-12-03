@@ -278,6 +278,130 @@ class TestFix2(unittest.TestCase):
             theFix.getSightings()
         self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
                           "Major:  failure to check for invalid body" )
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    def test400_000__ShouldSetAriesFile(self):
+        expectedResult = "aries.txt"
+        theFix = F.Fix()
+        theFix.setAriesFile("aries.txt")
+        self.assertEquals(expectedResult, theFix.ariesFile, "Major: Failed to set Aires file")
+        
+    def test400_100_ShouldRaiseExceptionOnNonStringFileName(self):
+        expectedDiag = self.className + "setAriesFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setAriesFile(42)
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to check for non-string sighting file name")  
+        
+    def test400_110_ShouldRaiseExceptionOnFileLengthError(self):
+        expectedDiag = self.className + "setAriesFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setAriesFile(".txt")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to check for .GE. 1 sighting file name") 
+        
+    def test400_120_ShouldRaiseExceptionOnNonXmlFile1(self):
+        expectedDiag = self.className + "setAriesFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setAriesFile("aries.")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to check for non.xml sighting file extension")
+        
+    def test400_130_ShouldRaiseExceptionOnNonTxtFile2(self):
+        expectedDiag = self.className + "setAriesFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setAriesFile("txt")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to delineate between sighting file name and extension") 
+        
+    def test400_140_SholdRaiseExceptionOnMissingFileName(self):
+        expectedDiag = self.className + "setAriesFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setAriesFile()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for missing sighting file")       
+        
+           
+    def test400_150_SholdRaiseExceptionOnMissingFile(self):
+        expectedDiag = self.className + "setAriesFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setAriesFile(self.RANDOM_LOG_FILE+".xml")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for missing sighting file") 
+        
+        
+        
+    def test500_000__ShouldSetStarFile(self):
+        expectedResult = "stars.txt"
+        theFix = F.Fix()
+        theFix.setStarFile("stars.txt")
+        self.assertEquals(expectedResult, theFix.starFile, "Major: Failed to set Star file")
+        
+    def test500_100_ShouldRaiseExceptionOnNonStringFileName(self):
+        expectedDiag = self.className + "setStarFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setStarFile(42)
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to check for non-string sighting file name")  
+        
+    def test500_110_ShouldRaiseExceptionOnFileLengthError(self):
+        expectedDiag = self.className + "setStarFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setStarFile(".txt")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to check for .GE. 1 sighting file name") 
+        
+    def test500_120_ShouldRaiseExceptionOnNonXmlFile1(self):
+        expectedDiag = self.className + "setStarFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setStarFile("stars.")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to check for non.xml sighting file extension")
+        
+    def test500_130_ShouldRaiseExceptionOnNonTxtFile2(self):
+        expectedDiag = self.className + "setStarFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setStarFile("txt")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Minor:  failure to delineate between sighting file name and extension") 
+        
+    def test500_140_SholdRaiseExceptionOnMissingFileName(self):
+        expectedDiag = self.className + "setStarFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setStarFile()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for missing sighting file")       
+        
+           
+    def test500_150_SholdRaiseExceptionOnMissingFile(self):
+        expectedDiag = self.className + "setStarFile:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setStarFile(self.RANDOM_LOG_FILE+".xml")
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for missing sighting file") 
 
 #  helper methods
     def indexInList(self, target, searchList):
