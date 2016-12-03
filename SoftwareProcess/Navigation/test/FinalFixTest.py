@@ -166,7 +166,118 @@ class TestFix2(unittest.TestCase):
             theFix.setSightingFile(self.RANDOM_LOG_FILE+".xml")
         self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
                           "Major:  failure to check for missing sighting file") 
+        
+    def test300_000_noSightingsInFile(self):
+        testFile = "CA02_300_ValidWithNoSightings.xml"
+        targetString1 = "Sighting errors"
+        targetString2 = "Sighting file"
+        
+        theFix = F.Fix(self.RANDOM_LOG_FILE)
+        theFix.setSightingFile(testFile)
+        theFix.setAriesFile("aries.txt")
+        theFix.setStarFile("stars.txt")
+        theFix.getSightings()
+        
+        theLogFile = open(self.RANDOM_LOG_FILE, "r")
+        logFileContents = theLogFile.readlines()
+        theLogFile.close()
+        
+        endOfSightingFileIndex = self.indexInList(targetString1, logFileContents)
+        self.assertLess(-1,endOfSightingFileIndex,
+                           "log file does not contain 'end of sighting file' entry")
+        self.assertLess(1, endOfSightingFileIndex,
+                           "log file does not contain sufficient entries")
+        self.assertTrue((targetString2 in logFileContents[endOfSightingFileIndex - 3]))
+        self.cleanup() 
+        
+    def test300_010_noSightingFileSet(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to set sighting file before getSightings()") 
+        
+    def test300_020_sightingFileMissingTags(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidWithMissingMandatoryTags.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for missing mandatory tag")  
+        
+    def test300_030_invalidBodyInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidBody.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body") 
+        
+    def test300_040_invalidDateInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidDate.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body") 
+        
+    def test300_050_invalidTimeInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidTime.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body")
 
+    def test300_060_invalidObservationInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidObservation.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body")  
+        
+    def test300_070_invalidHeightInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidHeight.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body" )
+        
+    def test300_080_invalidTemperatureInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidTemperature.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body" )
+        
+    def test300_090_invalidPressureInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidPressure.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body" )
+        
+    def test300_995_invalidHorizonInFile(self):
+        expectedDiag = self.className + "getSightings:"
+        theFix = F.Fix()
+        with self.assertRaises(ValueError) as context:
+            theFix.setSightingFile("CA02_300_InvalidHorizon.xml")
+            theFix.getSightings()
+        self.assertEquals(expectedDiag, context.exception.args[0][0:len(expectedDiag)],
+                          "Major:  failure to check for invalid body" )
 
 #  helper methods
     def indexInList(self, target, searchList):
