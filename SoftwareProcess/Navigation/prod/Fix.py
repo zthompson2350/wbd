@@ -657,7 +657,14 @@ class Fix():
             GHAobservation.add(SHAstarAngle)
             ariesfile.close()
             
-                        
+            #Local Hour Angle
+            #LHA = geographic position longitude - assumed longitude
+            #Corrected Altitude = 
+            # arcsin((sin(geographicpositionlatitude) * sin(assumedlatitude)) + (cos(geographicpositionlatitude) * cos(assumedlatitude)))
+            #Distance Adjustment = (adjusted altitude - corrected altitude) rounded to nearest whole arc-minute
+            #Azimuth Adjustment = 
+            # arcsin((sin(geographicpositionlatitude) - sin(assumedlatitude)) * (cos(assumedlatitude) - cos(distanceadjustment)))
+            #Write azimuth adjustment and distance adjustment to log
             
             
             
@@ -665,7 +672,8 @@ class Fix():
             self.log.write(
                     "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + "\t"
                     + sightings[j].find('date').text + "\t" + sightTime + "\t"
-                    + adjAltAngle + "\t" + latitude + "\t" + GHAobservation.getString() + "\n"
+                    + adjAltAngle + "\t" + latitude + "\t" + GHAobservation.getString() + "\t"
+                    + assumedLatitude + "\t" + assumedLongitude + "\n"
                     )
             self.log.close()
             
