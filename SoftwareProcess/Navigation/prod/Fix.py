@@ -659,15 +659,24 @@ class Fix():
             
             #Local Hour Angle
             #LHA = geographic position longitude - assumed longitude
+            assumedLongAngle = Angle.Angle()
+            assumedLongAngle.setDegreesAndMinutes(assumedLongitude)
+            LHA = GHAobservation
+            LHA.subtract(assumedLongAngle)
             #Corrected Altitude = 
             # arcsin((sin(geographicpositionlatitude) * sin(assumedlatitude)) + (cos(geographicpositionlatitude) * cos(assumedlatitude)))
+            assumedLatAngle = Angle.Angle()
+            assumedLatAngle.setDegreesAndMinutes(assumedLatitude)
+            correctedAltitude = math.asin((math.sin(math.radians(latitude)) * math.sin(math.radians(assumedLongAngle.getDegrees()))) + (math.cos(math.radians(latitude)) * math.cos(math.radians(assumedLatitude.getDegrees()))))
             #Distance Adjustment = (adjusted altitude - corrected altitude) rounded to nearest whole arc-minute
+            
             #Azimuth Adjustment = 
             # arcsin((sin(geographicpositionlatitude) - sin(assumedlatitude)) * (cos(assumedlatitude) - cos(distanceadjustment)))
+            
+            
+            
+            
             #Write azimuth adjustment and distance adjustment to log
-            
-            
-            
             self.log = open(self.fileName, 'a')
             self.log.write(
                     "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + "\t"
