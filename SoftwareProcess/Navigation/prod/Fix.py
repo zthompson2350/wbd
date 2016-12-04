@@ -667,13 +667,18 @@ class Fix():
             # arcsin((sin(geographicpositionlatitude) * sin(assumedlatitude)) + (cos(geographicpositionlatitude) * cos(assumedlatitude)))
             assumedLatAngle = Angle.Angle()
             assumedLatAngle.setDegreesAndMinutes(assumedLatitude)
-            correctedAltitude = math.asin((math.sin(math.radians(latitude)) * math.sin(math.radians(assumedLongAngle.getDegrees()))) + (math.cos(math.radians(latitude)) * math.cos(math.radians(assumedLatitude.getDegrees()))))
+            correctedAltitude = math.asin((math.sin(math.radians(latitude)) * math.sin(math.radians(assumedLatAngle.getDegrees()))) + (math.cos(math.radians(latitude)) * math.cos(math.radians(assumedLatAngle.getDegrees()))))
             #Distance Adjustment = (adjusted altitude - corrected altitude) rounded to nearest whole arc-minute
+            distAdjustment = adjAlt - correctedAltitude
+            distAdjAngle = Angle.Angle()
+            distAdjAngle.setDegrees(distAdjustment)
+            roundedDistAdj = int(round(distAdjAngle.getDegrees()))
             
             #Azimuth Adjustment = 
             # arcsin((sin(geographicpositionlatitude) - sin(assumedlatitude)) * (cos(assumedlatitude) - cos(distanceadjustment)))
-            
-            
+            azimuthAngle = Angle.Angle()
+            azimuth = math.asin((math.sin(math.radians(latitude)) - math.sin(math.radians(assumedLatAngle.getDegrees()))) * (math.cos(math.radians(assumedLatAngle.getDegrees())) - math.cos(math.radians(distAdjAngle.getDegrees()))))
+            azimuthAngle.setDegrees(azimuth)
             
             
             #Write azimuth adjustment and distance adjustment to log
@@ -682,7 +687,8 @@ class Fix():
                     "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + "\t"
                     + sightings[j].find('date').text + "\t" + sightTime + "\t"
                     + adjAltAngle + "\t" + latitude + "\t" + GHAobservation.getString() + "\t"
-                    + assumedLatitude + "\t" + assumedLongitude + "\n"
+                    + assumedLatitude + "\t" + assumedLongitude + "\t" + azimuthAngle.getString() + "\t"
+                    + str(roundedDistAdj) + "\n"
                     )
             self.log.close()
             
