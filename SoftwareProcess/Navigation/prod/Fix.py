@@ -412,7 +412,49 @@ class Fix():
             if(foundDecimal):
                 if(minuteString[len(minuteString) - 2] != '.'):
                     raise ValueError('Fix.getSightings: assumedLatitude minutes should be rounded to nearest tenth')
+            if(latDegs < 0 or latDegs >= 90):
+                raise ValueError("Fix.getSightings: assumedLatitude degrees should be between 0 and 90")
+            if(latMins >= 60.0):
+                raise ValueError("Fix.getSightings: assumedLatitude minutes should be less than 60.0")
             
+        if(assumedLongitude == None):
+            assumedLongitude = "0d0.0"
+        if(not(isinstance(assumedLongitude, str))):
+            raise ValueError('Fix.getSightings: assumedLongitude must be of type str')
+        delimiterIndex = assumedLongitude.find(delimiter)
+        if(delimiterIndex == -1):
+            raise ValueError('Fix.getSightings: assumedLongitude must be in format xdy.y')
+        if(delimiterIndex == 0):
+            raise ValueError('Fix.getSightings: assumedLongitude must be in format xdy.y')
+        if(assumedLongitude[delimiterIndex] == assumedLongitude[-1]):
+            raise ValueError('Fix.getSightings: assumedLongitude must be in format xdy.y')
+        if(not(assumedLongitude == "0d0.0")):
+            longDegs = assumedLongitude[:delimiterIndex]
+            try:
+                longDegs = int(longDegs)
+            except:
+                raise ValueError('Fix.getSightings: assumedLongitude degrees value needs to be an integer')
+            try:
+                longMins = float(assumedLongitude[delimiterIndex+1:])
+            except:
+                raise ValueError('Fix.getSightings: assumedLongitude minutes should be able to cast to float')
+            if(longMins < 0.0):
+                raise ValueError('Fix.getSightings: assumedLongitude minutes must be positive')
+            minuteString = assumedLongitude[delimiterIndex+1:]
+            for ch in minuteString:
+                if(ch == '.'):
+                    foundDecimal = True
+                    break
+                else:
+                    foundDecimal = False
+            if(foundDecimal):
+                if(minuteString[len(minuteString) - 2] != '.'):
+                    raise ValueError('Fix.getSightings: assumedLongitude minutes should be rounded to nearest tenth')
+        
+            if(longDegs < 0 or longDegs >= 360):
+                raise ValueError('Fix.getSightings: assumedLongitude degrees should be between 0 and 360')
+            if(longMins >= 60.0):
+                raise ValueError('Fix.getSightings: assumedLongitude minutes should be less than 60.0')
         
         approximateLatitude = "0d0.0"
         approximateLongitude = "0d0.0"
