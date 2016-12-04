@@ -373,6 +373,47 @@ class Fix():
             raise ValueError('Fix.getSightings:  No Aries File has been set')
         elif(self.starFile == ""):
             raise ValueError('Fix.getSightings:  No Star File has been set')
+        if(assumedLatitude == None):
+            assumedLatitude = "0d0.0"
+        if(not(isinstance(assumedLatitude, str))):
+            raise ValueError('Fix.getSightings: assumedLatitude must be of type str')
+        delimiter = 'd'
+        delimiterIndex = assumedLatitude.find(delimiter)
+        if(delimiterIndex == -1):
+            raise ValueError('Fix.getSightings: assumedLatitude must be in format hxdy.y')
+        if(delimiterIndex == 0):
+            raise ValueError('Fix.getSightings: assumedLatitude must be in format hxdy.y')
+        if(delimiterIndex == 1):
+            if(not(assumedLatitude == '0d0.0')):
+                raise ValueError('Fix.getSightings: if no direction specified, assumedLatitude must be 0d0.0')
+        if(assumedLatitude[delimiterIndex] == assumedLatitude[-1]):
+            raise ValueError('Fix.getSightings: assumedLatitude must be in format hxdy.y')
+        if(not(assumedLatitude == "0d0.0")):
+            if(not(assumedLatitude[0] == 'N' or assumedLatitude[0] == 'S')):
+                raise ValueError('Fix.getSightings: hemisphere indicator in assumedLatitude must be N or S')
+            latDegs = assumedLatitude[1:delimiterIndex]
+            try:
+                latDegs = int(latDegs)
+            except:
+                raise ValueError('Fix.getSightings: assumedLatitude degrees value needs to be an integer')
+            try:
+                latMins = float(assumedLatitude[delimiterIndex+1:])
+            except:
+                raise ValueError('Fix.getSightings: assumedLatitude minutes should be able to cast to float')
+            if(latMins < 0.0):
+                raise ValueError('Fix.getSightings: assumedLatitude minutes must be positive')
+            minuteString = assumedLatitude[delimiterIndex+1:]
+            for c in minuteString:
+                if(c == '.'):
+                    foundDecimal = True
+                    break
+                else:
+                    foundDecimal = False
+            if(foundDecimal):
+                if(minuteString[len(minuteString) - 2] != '.'):
+                    raise ValueError('Fix.getSightings: assumedLatitude minutes should be rounded to nearest tenth')
+            
+        
         approximateLatitude = "0d0.0"
         approximateLongitude = "0d0.0"
         
