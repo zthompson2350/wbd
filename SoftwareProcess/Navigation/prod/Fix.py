@@ -456,11 +456,11 @@ class Fix():
             if(longMins >= 60.0):
                 raise ValueError('Fix.getSightings: assumedLongitude minutes should be less than 60.0')
         
-        approximateLatitude = "0d0.0"
-        approximateLongitude = "0d0.0"
+        approximateLatitude = 0.0
+        approximateLongitude = 0.0
         
         dom = ElementTree.parse(self.sightingFile)
-        myAngle = Angle.Angle()
+        adjAltAngle = Angle.Angle()
         sightings = dom.findall('sighting')
         order = self.__getOrder__(sightings)
         
@@ -478,13 +478,12 @@ class Fix():
             else:
                 dip = 0.0
             obsv = sightings[j].find('observation').text
-            myAngle.setDegreesAndMinutes(obsv)
-            altitude = myAngle.getDegrees()
+            adjAltAngle.setDegreesAndMinutes(obsv)
+            altitude = adjAltAngle.getDegrees()
             temp = (float(sightings[j].find('temperature').text) - 32) * (5.0/9.0)
             refraction = ((-0.00452) * float(sightings[j].find('pressure').text)) / (273.0 +temp) / math.tan(math.radians(altitude))
             adjAlt = altitude + dip + refraction
-            myAngle.setDegrees(adjAlt)
-            adjAltAngle = myAngle.getString()
+            adjAltAngle.setDegrees(adjAlt)
             
             
             
@@ -662,23 +661,54 @@ class Fix():
             assumedLongAngle = Angle.Angle()
             assumedLongAngle.setDegreesAndMinutes(assumedLongitude)
             LHA = GHAobservation
-            LHA.subtract(assumedLongAngle)
+            LHA.add(assumedLongAngle)
             #Corrected Altitude = 
             # arcsin((sin(geographicpositionlatitude) * sin(assumedlatitude)) + (cos(geographicpositionlatitude) * cos(assumedlatitude)))
             assumedLatAngle = Angle.Angle()
-            assumedLatAngle.setDegreesAndMinutes(assumedLatitude)
-            correctedAltitude = math.asin((math.sin(math.radians(latitude)) * math.sin(math.radians(assumedLatAngle.getDegrees()))) + (math.cos(math.radians(latitude)) * math.cos(math.radians(assumedLatAngle.getDegrees()))))
+            if(assumedLatitude == "0d0.0"):
+                assumedLatAngle.setDegreesAndMinutes(assumedLatitude)
+            else: #If not 0d0.0, it will have have a direction given
+                direction = assumedLatitude[0]
+                if (direction == 'S'):
+                    delimiterIndex = assumedLatitude.find(delimiter)
+                    latdegs = int(assumedLatitude[1:delimiterIndex])
+                    latdegs += 180
+                    latmins = float(assumedLatitude[delimiterIndex+1:])
+                    latstr = str(latdegs) + "d" + latmins
+                    assumedLatAngle.setDegreesAndMinutes(latstr)
+                else: #If it's North, the degrees portion will not need adjusting as seen above for South
+                    assumedLatAngle.setDegreesAndMinutes(assumedLatitude[1:])
+            geoLatAngle = Angle.Angle()
+            geoLatAngle.setDegreesAndMinutes(latitude)
+            sinlat1 = math.sin(math.radians(geoLatAngle.getDegrees()))
+            sinlat2 = math.sin(math.radians(assumedLatAngle.getDegrees()))
+            sinlat = sinlat1 * sinlat2
+            coslat1 = math.cos(math.radians(geoLatAngle.getDegrees()))
+            coslat2 = math.cos(math.radians(assumedLatAngle.getDegrees()))
+            cosLHA = math.cos(math.radians(LHA.getDegrees()))
+            coslat = coslat1 * coslat2 * cosLHA
+            intermediateDistance = sinlat + coslat            
+            correctedAltitude = math.asin(math.radians(intermediateDistance))
+            corrAltAngle = Angle.Angle()
+            corrAltAngle.setDegrees(correctedAltitude)
             #Distance Adjustment = (adjusted altitude - corrected altitude) rounded to nearest whole arc-minute
-            distAdjustment = adjAlt - correctedAltitude
-            distAdjAngle = Angle.Angle()
-            distAdjAngle.setDegrees(distAdjustment)
-            roundedDistAdj = int(round(distAdjAngle.getDegrees()))
-            
+            distAdjustment = adjAltAngle
+            distAdjustment.subtract(corrAltAngle)
+            #Convert to arcminutes and round to nearest whole arc-minute
+            roundedDistAdj = int(distAdjustment.getDegrees() * 60)
             #Azimuth Adjustment = 
             # arcsin((sin(geographicpositionlatitude) - sin(assumedlatitude)) * (cos(assumedlatitude) - cos(distanceadjustment)))
+            numerator = sinlat1 - sinlat2 * intermediateDistance #sinlat1 and sinlat2 carry over from previous calculations
+            coslat1 = math.cos(math.radians(assumedLatAngle.getDegrees()))
+            coslat2 = math.cos(math.radians(corrAltAngle.getDegrees()))
+            denominator = coslat1 * coslat2
+            intermediaAzimuth = numerator / denominator
+            azimuthAdjustment = math.acos(math.radians(intermediaAzimuth))
             azimuthAngle = Angle.Angle()
-            azimuth = math.asin((math.sin(math.radians(latitude)) - math.sin(math.radians(assumedLatAngle.getDegrees()))) * (math.cos(math.radians(assumedLatAngle.getDegrees())) - math.cos(math.radians(distAdjAngle.getDegrees()))))
-            azimuthAngle.setDegrees(azimuth)
+            azimuthAngle.setDegrees(azimuthAdjustment)
+            
+            approximateLatitude += distAdjustment.getDegrees() * math.cos(math.radians(azimuthAdjustment))
+            approximateLongitude += distAdjustment.getDegrees() * math.sin(math.radians(azimuthAdjustment))
             
             
             #Write azimuth adjustment and distance adjustment to log
@@ -686,17 +716,56 @@ class Fix():
             self.log.write(
                     "Log: " + self.__timeAndDate__(today) + sightings[j].find('body').text + "\t"
                     + sightings[j].find('date').text + "\t" + sightTime + "\t"
-                    + adjAltAngle + "\t" + latitude + "\t" + GHAobservation.getString() + "\t"
+                    + adjAltAngle.getString() + "\t" + latitude + "\t" + GHAobservation.getString() + "\t"
                     + assumedLatitude + "\t" + assumedLongitude + "\t" + azimuthAngle.getString() + "\t"
                     + str(roundedDistAdj) + "\n"
                     )
             self.log.close()
             
             i = i + 1
+        approximateLatitude = approximateLatitude / 60.0
+        approximateLongitude = approximateLongitude / 60.0
+        approxLatAngle = Angle.Angle()
+        approxLongAngle = Angle.Angle()
+        south = False
+        if(not(i == 0)):
+            if(not(assumedLatitude == "0d0.0")):
+                approximateLatitude += assumedLatAngle.getDegrees()
+                approximateLongitude += assumedLongAngle.getDegrees()
+                if(approximateLatitude > 180.0):
+                    south = True
+                    approximateLatitude = approximateLatitude % 180.0
+                approxLatAngle.setDegrees(approximateLatitude)
+                approxLongAngle.setDegrees(approximateLongitude)
+        else:
+            assumedLatAngle = Angle.Angle()
+            assumedLongAngle = Angle.Angle()
+            assumedLongAngle.setDegreesAndMinutes(assumedLongitude)
+            if(assumedLatitude == "0d0.0"):
+                assumedLatAngle.setDegreesAndMinutes(assumedLatitude)
+            else: #If not 0d0.0, it will have have a direction given
+                direction = assumedLatitude[0]
+                if (direction == 'S'):
+                    south = True
+                    delimiterIndex = assumedLatitude.find(delimiter)
+                    latdegs = int(assumedLatitude[1:delimiterIndex])
+                    latdegs += 180
+                    latmins = float(assumedLatitude[delimiterIndex+1:])
+                    latstr = str(latdegs) + "d" + latmins
+                    assumedLatAngle.setDegreesAndMinutes(latstr)
+                else: #If it's North, the degrees portion will not need adjusting as seen above for South
+                    assumedLatAngle.setDegreesAndMinutes(assumedLatitude[1:])
+            approximateLatitude = assumedLatAngle.getDegrees()
+            approximateLongitude = assumedLongAngle.getDegrees()
         today = datetime.datetime.now()
         self.log = open(self.fileName, 'a')
         self.log.write("Log: " + self.__timeAndDate__(today) + "Sighting errors:\t" + str(sightingErrors) + "\n")
+        if(south):
+            self.log.write("Log: " + self.__timeAndDate__(today) + "Approximate latitude: S" + approxLatAngle.getString()
+                           + "\tApproximate longitude: " + approxLongAngle.getString())
+        else:
+            self.log.write("Log: " + self.__timeAndDate__(today) + "Approximate latitude: N" + approxLatAngle.getString()
+                           + "\tApproximate longitude: " + approxLongAngle.getString()) 
         self.log.close()
             
         return(approximateLatitude, approximateLongitude)
-    
